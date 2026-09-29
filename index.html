@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CPU Scheduling Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">OS</div>
+        <div>
+          <h1>Schedulab</h1>
+          <span>CPU Scheduling Simulator</span>
+        </div>
+      </div>
+
+      <nav>
+        <a class="nav-item active" href="#simulator">▦ <span>Simulator</span></a>
+        <a class="nav-item" href="#comparison">◈ <span>Comparison</span></a>
+      </nav>
+
+      <div class="sidebar-note">
+        <div class="status-dot"></div>
+        <div>
+          <strong>System Ready</strong>
+          <small>Scheduling engine online</small>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">OPERATING SYSTEMS • MIDTERM PROJECT</p>
+          <h2>CPU Scheduling Simulator</h2>
+          <p class="subtitle">Simulate algorithms. Visualize execution. Understand performance.</p>
+        </div>
+        <div class="top-actions">
+          <button class="ghost-btn" id="loadSample">Load Sample</button>
+          <button class="primary-btn" id="runTop">▶ Run Simulation</button>
+        </div>
+      </header>
+
+      <section id="simulator" class="page-section">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">01 / INPUT</span>
+            <h3>Process Configuration</h3>
+          </div>
+          <div class="input-hint">Minimum 5 processes supported</div>
+        </div>
+
+        <div class="workspace-grid">
+          <div class="panel process-panel">
+            <div class="panel-header">
+              <div>
+                <h4>Process Table</h4>
+                <p>Enter arrival time, burst time, and priority.</p>
+              </div>
+              <button class="small-btn" id="addProcess">＋ Add Process</button>
+            </div>
+
+            <div class="table-wrap">
+              <table id="processTable">
+                <thead>
+                  <tr>
+                    <th>Process</th>
+                    <th>Arrival Time</th>
+                    <th>Burst Time</th>
+                    <th>Priority</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div class="table-footer">
+              <span id="processCount">0 processes</span>
+              <button class="text-btn" id="clearProcesses">Clear All</button>
+            </div>
+          </div>
+
+          <div class="panel settings-panel">
+            <div class="panel-header">
+              <div>
+                <h4>Simulation Settings</h4>
+                <p>Choose how the CPU selects processes.</p>
+              </div>
+            </div>
+
+            <label class="field-label">Algorithm</label>
+            <select id="algorithm">
+              <option value="FCFS">First-Come, First-Served (FCFS)</option>
+              <option value="SJF">Shortest Job First (SJF)</option>
+              <option value="SRTF">Shortest Remaining Time First (SRTF)</option>
+              <option value="RR">Round Robin (RR)</option>
+              <option value="PRIORITY_NP">Priority Scheduling — Non-Preemptive</option>
+              <option value="PRIORITY_P">Priority Scheduling — Preemptive</option>
+            </select>
+
+            <div id="quantumGroup" class="hidden">
+              <label class="field-label">Round Robin Time Quantum</label>
+              <div class="number-input">
+                <input id="quantum" type="number" min="1" step="1" value="2">
+                <span>time units</span>
+              </div>
+            </div>
+
+            <div class="priority-info">
+              <span class="info-icon">i</span>
+              <div>
+                <strong>Priority rule</strong>
+                <p>Smaller numerical value = higher priority.</p>
+              </div>
+            </div>
+
+            <div class="run-card">
+              <div>
+                <span>Ready to simulate?</span>
+                <small>The engine calculates CT, TAT, WT and RT automatically.</small>
+              </div>
+              <button class="primary-btn full" id="runSimulation">Run Simulation</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="results" class="page-section hidden">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">02 / EXECUTION</span>
+            <h3>Execution Timeline</h3>
+          </div>
+          <div class="result-label" id="resultAlgorithm">FCFS</div>
+        </div>
+
+        <div class="panel gantt-panel">
+          <div class="panel-header">
+            <div>
+              <h4>Gantt Chart</h4>
+              <p>Process execution order, including CPU idle periods.</p>
+            </div>
+            <span class="legend"><i></i> Process <em></em> Idle</span>
+          </div>
+          <div id="gantt" class="gantt"></div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span>AVG WAITING TIME</span>
+            <strong id="avgWT">—</strong>
+            <small>WT = TAT − BT</small>
+          </div>
+          <div class="metric-card">
+            <span>AVG TURNAROUND TIME</span>
+            <strong id="avgTAT">—</strong>
+            <small>TAT = CT − AT</small>
+          </div>
+          <div class="metric-card">
+            <span>AVG RESPONSE TIME</span>
+            <strong id="avgRT">—</strong>
+            <small>RT = First Start − AT</small>
+          </div>
+          <div class="metric-card accent">
+            <span>TOTAL CPU TIME</span>
+            <strong id="totalTime">—</strong>
+            <small>From first start to last finish</small>
+          </div>
+        </div>
+
+        <div class="panel metrics-panel">
+          <div class="panel-header">
+            <div>
+              <h4>Process Metrics</h4>
+              <p>Detailed scheduling performance for every process.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="metricsTable">
+              <thead>
+                <tr>
+                  <th>Process</th>
+                  <th>AT</th>
+                  <th>BT</th>
+                  <th>Priority</th>
+                  <th>CT</th>
+                  <th>TAT</th>
+                  <th>WT</th>
+                  <th>RT</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+  
+      <section id="comparison" class="page-section">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">03 / ANALYSIS</span>
+            <h3>Algorithm Comparison</h3>
+          </div>
+          <button class="small-btn" id="compareAll">Compare All Algorithms</button>
+        </div>
+
+        <div class="panel comparison-panel">
+          <div class="table-wrap">
+            <table id="comparisonTable">
+              <thead>
+                <tr>
+                  <th>Algorithm</th>
+                  <th>Avg. Waiting Time</th>
+                  <th>Avg. Turnaround Time</th>
+                  <th>Avg. Response Time</th>
+                  <th>Gantt Segments</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5" class="empty-state">Run a simulation or click “Compare All Algorithms”.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>Schedulab • Operating Systems Midterm Project</span>
+        <span>FEDORA</span>
+      </footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
